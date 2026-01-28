@@ -13,7 +13,7 @@ The frontend is a lightweight React application that:
 - a company
 - a reporting period (Q1, Q2, Q3, Annual)
 3) Clicking Generate output submits the selection to ```POST /api/output/generate```
-4_ If successful:
+4) If successful:
 - the normalized output JSON is rendered in an Output Preview
 - the user can download the JSON file
 5) If an error occurs, the backend error message is displayed consistently in the UI
