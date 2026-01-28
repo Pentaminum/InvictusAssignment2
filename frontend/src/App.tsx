@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-type Company = {
-  company_id: string;
-  legal_entity_name: string;
-};
+import type { CompanyListItem, Period, OutputResponse } from "./api/types";
+import { listCompanies } from "./api/companies";
+import { generateOutput } from "./api/output";
 
-type Period = "Q1" | "Q2" | "Q3" | "Annual";
+import ErrorBanner from "./components/ErrorBanner";
+import OutputPreview from "./components/OutputPreview";
 
 const API_BASE = "http://localhost:8000";
 
 export default function App() {
   const periods = useMemo(() => ["Q1", "Q2", "Q3", "Annual"] as const, []);
 
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   const [period, setPeriod] = useState<Period>("Q1");
 
@@ -21,7 +21,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string>("");
 
-  const [output, setOutput] = useState<any>(null);
+  const [output, setOutput] = useState<OutputResponse | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,24 +31,13 @@ export default function App() {
       setError("");
 
       try {
-        const res = await fetch(`${API_BASE}/api/companies`);
-        if (!res.ok) {
-          throw new Error(`GET /api/companies failed (${res.status})`);
-        }
-
-        const data: Company[] = await res.json();
+        const data = await listCompanies(API_BASE);
         if (cancelled) return;
 
         setCompanies(data);
-
-        if (data.length > 0) {
-          setCompanyId(data[0].company_id);
-        } else {
-          setCompanyId("");
-        }
+        setCompanyId(data.length > 0 ? data[0].company_id : "");
       } catch (e: any) {
-        if (cancelled) return;
-        setError(e?.message ?? "Failed to load companies.");
+        if (!cancelled) setError(e?.message ?? "Failed to load companies.");
       } finally {
         if (!cancelled) setIsLoadingCompanies(false);
       }
@@ -71,25 +60,7 @@ export default function App() {
     setOutput(null);
 
     try {
-      const res = await fetch(`${API_BASE}/api/output/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          company_id: companyId,
-          period,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(
-          `POST /api/output/generate failed (${res.status})${text ? `: ${text}` : ""}`
-        );
-      }
-
-      const data = await res.json();
+      const data = await generateOutput(API_BASE, { company_id: companyId, period });
       setOutput(data);
     } catch (e: any) {
       setError(e?.message ?? "Failed to generate output.");
@@ -153,12 +124,7 @@ export default function App() {
             </select>
           </div>
 
-          {error && (
-            <div className="error" role="alert">
-              <div className="errorTitle">Something went wrong</div>
-              <div className="errorMsg">{error}</div>
-            </div>
-          )}
+          {error && <ErrorBanner message={error} />}
 
           <div className="actions">
             <button
@@ -168,19 +134,10 @@ export default function App() {
             >
               {isGenerating ? "Generating..." : "Generate output"}
             </button>
-
           </div>
 
-          {output && (
-            <div className="output">
-              <div className="outputHeader">
-                <div className="outputTitle">Output Preview</div>
-              </div>
-              <pre className="outputPre">{JSON.stringify(output, null, 2)}</pre>
-            </div>
-          )}
+          {output && <OutputPreview output={output} />}
         </main>
-
       </div>
     </div>
   );
