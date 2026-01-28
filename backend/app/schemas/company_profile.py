@@ -8,7 +8,7 @@ class CompanyProfileBase(BaseModel):
     ticker_symbol: str | None = None
     stock_exchange: str | None = None
     industry: str | None = None
-    currency_of_reporting: str = Field(min_length=3, max_length=3)
+    currency_of_reporting: str
     fiscal_year_end_date: str = Field(
         pattern=r"\d{4}-\d{2}-\d{2}",
         description="YYYY-MM-DD"

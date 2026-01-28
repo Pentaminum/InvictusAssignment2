@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.repositories.company_repo import CompanyRepository
 from app.services.company_service import CompanyService
-from app.schemas.company import CompanyProfileRead
+from app.schemas.company_profile import CompanyProfileRead
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
