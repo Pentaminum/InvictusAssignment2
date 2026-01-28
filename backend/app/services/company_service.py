@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from app.core.errors import NotFoundError
+
 from app.repositories.company_repo import CompanyRepository
 
 class CompanyService:
@@ -11,4 +13,7 @@ class CompanyService:
         return self.repo.list_companies(db)
 
     def get_company(self, db: Session, company_id: str):
-        return self.repo.get(db, company_id)
+        company = self.repo.get(db, company_id)
+        if not company:
+            raise NotFoundError(f"Company '{company_id}' not found")
+        return company

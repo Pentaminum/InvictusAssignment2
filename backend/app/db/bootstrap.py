@@ -3,7 +3,7 @@ from pathlib import Path
 
 from app.db.base import Base
 from app.db.session import engine, SessionLocal
-from app.models.company_profile import Company_profile
+from app.models.company_profile import CompanyProfile
 
 
 def bootstrap_db() -> None:
@@ -13,14 +13,14 @@ def bootstrap_db() -> None:
     # 2) Seed if empty
     db = SessionLocal()
     try:
-        has_any = db.query(Company_profile).first() is not None
+        has_any = db.query(CompanyProfile).first() is not None
         if has_any:
             return
 
         seed_path = Path(__file__).parent / "seed_data" / "companies.json"
         data = json.loads(seed_path.read_text(encoding="utf-8"))
 
-        db.add_all([Company_profile(**row) for row in data])
+        db.add_all([CompanyProfile(**row) for row in data])
         db.commit()
     finally:
         db.close()

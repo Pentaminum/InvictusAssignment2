@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.repositories.company_repo import CompanyRepository
 from app.schemas.company_profile import CompanyProfileRead
 from app.schemas.output import Period, OutputResponse
+from app.core.errors import NotFoundError
 
 class OutputService:
     def __init__(self, repo: CompanyRepository):
@@ -21,6 +22,8 @@ class OutputService:
 
     def build_output(self, db: Session, company_id: str, period: Period) -> OutputResponse:
         company = self.repo.get(db, company_id)
+        if not company:
+            raise NotFoundError(f"Company '{company_id}' not found")
 
         # 1) ORM -> Pydantic
         company_read = CompanyProfileRead.model_validate(company)

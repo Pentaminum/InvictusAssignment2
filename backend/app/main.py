@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.api.router import api_router
 from app.db.bootstrap import bootstrap_db
+from app.api.error_handlers import register_error_handlers
 
 
 @asynccontextmanager
@@ -22,5 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+register_error_handlers(app)
 
 app.include_router(api_router)
