@@ -33,7 +33,7 @@ uvicorn app.main:app --reload
 Backend runs at: http://localhost:8000
 
 
-### Frontend(React + Vite)
+### Frontend(React)
 ```
 cd frontend
 
