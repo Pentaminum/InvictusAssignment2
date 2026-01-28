@@ -8,7 +8,7 @@ from app.services.company_service import CompanyService
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
-@router.get("", response_model=list[CompanyProfileRead])
+@router.get("/", response_model=list[CompanyProfileRead])
 def list_companies(
     db: Session = Depends(get_db),
     service: CompanyService = Depends(get_company_service),
