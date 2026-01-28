@@ -10,6 +10,7 @@ frontend/
 ```
 
 ## Running the application
+Open two terminals: one for the backend and one for the frontend.
 
 ### Backend(FastAPI)
 
