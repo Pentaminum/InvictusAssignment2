@@ -1,73 +1,34 @@
-# React + TypeScript + Vite
+# Frontend Design (React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+The frontend is a lightweight React application that:
+1) guide the user through valid selections,
+2) submit inputs to the API,
+3) display validated output clearly, and
+4) surface backend errors without duplicating business logic.
 
-Currently, two official plugins are available:
+## Userflow
+1) On load, the app fetches available companies from ```GET /api/companies```
+2) The user selects:
+- a company
+- a reporting period (Q1, Q2, Q3, Annual)
+3) Clicking Generate output submits the selection to ```POST /api/output/generate```
+4_ If successful:
+- the normalized output JSON is rendered in an Output Preview
+- the user can download the JSON file
+5) If an error occurs, the backend error message is displayed consistently in the UI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Structure
+- **API layer**: type-safe API client + centralizes error handling + endpoint specific modules 
+- **Components**: ErrorBanner + OutputPreview
+- **Application State**: handles initial data loading + selection state + loading and error states
 
-## React Compiler
+This keeps logic testable and makes it easy to expand endpoints without mixing concerns.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Validation
+Request validation is done with Pydantic schemas (e.g., `Period` enum), so invalid inputs are rejected at the API boundary consistently.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Exception Handling
+Custom application errors are handled centrally via an exception handler.
+Right now the only required case is **404 Not Found** (invalid `company_id`), but the same pattern can be extended later for
+other error types without changing individual routes.
