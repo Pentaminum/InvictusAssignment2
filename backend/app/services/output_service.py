@@ -9,7 +9,12 @@ from app.core.errors import NotFoundError
 
 class OutputService:
     def __init__(self, repo: CompanyRepository):
-            self.repo = repo
+        self.repo = repo
+
+    def end_of_month(self, dt: date) -> date:
+        # Normalize any date to the last day of its month (month-end)
+        last_day = calendar.monthrange(dt.year, dt.month)[1]
+        return dt.replace(day=last_day)
 
     def add_months(self, dt: date, months: int) -> date:
         # months can be negative
@@ -28,8 +33,8 @@ class OutputService:
         # 1) ORM -> Pydantic
         company_read = CompanyProfileRead.model_validate(company)
 
-        # 2) parse ISO to date
-        fy_end = date.fromisoformat(company_read.fiscal_year_end_date)
+        # 2) parse ISO to date, then normalize fiscal year end to month-end
+        fy_end = self.end_of_month(date.fromisoformat(company_read.fiscal_year_end_date))
 
         # 3) report_type / quarter / reporting_period_end calculation
         if period == Period.ANNUAL:
@@ -40,7 +45,10 @@ class OutputService:
             report_type = "Interim"
             quarter = period.value
             months_back = {"Q1": -9, "Q2": -6, "Q3": -3}[quarter]
+
+            # Calculate by shifting months, then normalize to month-end
             reporting_period_end = self.add_months(fy_end, months_back)
+            reporting_period_end = self.end_of_month(reporting_period_end)
 
         # 4) output format
         year_end_str = fy_end.strftime("%B %d").replace(" 0", " ")

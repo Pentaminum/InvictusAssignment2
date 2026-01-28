@@ -17,6 +17,6 @@ class OutputRequest(BaseModel):
 class OutputResponse(CompanyProfileRead):
     # all fields from CompanyProfileRead + fields below
     report_type: str
-    reporting_period_end: str  # "June 30, 2024"
-    year_end: str              # "December 31"
     quarter: str | None = None # None if Annual
+    year_end: str              # "December 31"
+    reporting_period_end: str  # "June 30, 2024"
