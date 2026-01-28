@@ -11,7 +11,7 @@ frontend/
 
 ## Running the application
 
-## Backend(FastAPI)
+### Backend(FastAPI)
 
 ```
 cd backend
@@ -32,7 +32,7 @@ uvicorn app.main:app --reload
 Backend runs at: http://localhost:8000
 
 
-## Frontend(React + Vite)
+### Frontend(React + Vite)
 ```
 cd frontend
 
