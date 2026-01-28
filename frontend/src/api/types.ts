@@ -22,7 +22,7 @@ export type CompanyProfile = {
   };
   
   export type OutputResponse = CompanyProfile & {
-    report_type: string;             // "Annual" | "Interim" (백엔드 기준)
+    report_type: string;             // "Annual" | "Interim"
     reporting_period_end: string;    // "June 30, 2024"
     year_end: string;                // "December 31"
     quarter?: string | null;         // "Q1" | "Q2" | "Q3" | null
